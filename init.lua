@@ -1,4 +1,4 @@
-local json, crypto = require 'dkjson', require 'crypto'
+local json, crypto, tonumber = require 'dkjson', require 'crypto', tonumber
 local print, exit, _SESSION = print, exit, _SESSION
 local debug, error, empty, header = debug, error, seawolf.variable.empty, header
 local theme, tconcat, add_js, read = theme, table.concat, add_js, io.read
@@ -66,6 +66,17 @@ function user_load(account)
 			return rs:fetch(true)
     end
   end
+end
+
+function user_access(perm)
+  local account = _SESSION.user
+
+  if not empty(account) and not empty(account.id) then
+    if tonumber(account.id) == 1 then
+      return true
+    end
+  end
+  return false
 end
 
 function login_page()
