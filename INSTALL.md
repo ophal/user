@@ -5,12 +5,14 @@ Installation instructions
 
 CREATE TABLE user(id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(255), mail VARCHAR(255), pass VARCHAR(255), active BOOLEAN, created UNSIGNED BIG INT);
 
-2. Generate a password with followind script:
+2. Generate a password with following script:
 
 crypto = require 'crypto'
 d = crypto.digest.new 'sha256'
 d:update 'mypassword'
 print(d:final())
+
+NOTICE: this script outputs a password hash, change 'mypassword' by 'yourpass'
 
 3. Create user 1:
 
