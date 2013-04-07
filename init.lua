@@ -58,7 +58,10 @@ function user_load(account)
 	local rs
 
   if 'table' == type(account) then
-    if not empty(account.name) then
+    if not empty(account.id) then
+			rs = db_query('SELECT * FROM user WHERE id = ?', account.id)
+			return rs:fetch(true)
+    elseif not empty(account.name) then
 			rs = db_query('SELECT * FROM user WHERE name = ?', account.name)
 			return rs:fetch(true)
     end
