@@ -14,3 +14,8 @@ Requirements
 - Front-end UI
   - Login form
   - User profile
+
+Dependencies
+------------
+- LuaCrypto http://luacrypto.luaforge.net/
+- dkjson http://chiselapp.com/user/dhkolf/repository/dkjson/home
