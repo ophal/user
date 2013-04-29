@@ -23,5 +23,10 @@ INSERT INTO "user" VALUES(1,'root','test@example.com',[password],1,[unix timesta
 env.maths = require 'seawolf.maths'
 env.math = math
 
-5. Enable this module:
+5. Enable Form API:
 
+settings.formapi = true
+
+6. Enable this module:
+
+settings.modules.user = true
