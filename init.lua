@@ -33,12 +33,12 @@ end
 
 function boot()
   -- Load user
-	if _SESSION.user == nil then
-		_SESSION.user = {
-			id = 0,
-			name = 'Anonymous',
-		}
-	end
+  if _SESSION.user == nil then
+  _SESSION.user = {
+    id = 0,
+    name = 'Anonymous',
+  }
+  end
 end
 
 --[[
@@ -55,15 +55,15 @@ function user_is_logged_in()
 end
 
 function user_load(account)
-	local rs
+  local rs
 
   if 'table' == type(account) then
     if not empty(account.id) then
-			rs = db_query('SELECT * FROM user WHERE id = ?', account.id)
-			return rs:fetch(true)
+      rs = db_query('SELECT * FROM user WHERE id = ?', account.id)
+      return rs:fetch(true)
     elseif not empty(account.name) then
-			rs = db_query('SELECT * FROM user WHERE name = ?', account.name)
-			return rs:fetch(true)
+      rs = db_query('SELECT * FROM user WHERE name = ?', account.name)
+      return rs:fetch(true)
     end
   end
 end
@@ -80,29 +80,29 @@ function user_access(perm)
 end
 
 function login_page()
-	add_js 'misc/jquery.js'
-	add_js 'misc/jssha256.js'
-	add_js 'misc/json2.js'
-	add_js 'modules/user/user_login.js'
+  add_js 'misc/jquery.js'
+  add_js 'misc/jssha256.js'
+  add_js 'misc/json2.js'
+  add_js 'modules/user/user_login.js'
   return tconcat{
-		'<form method="POST">',
-		'<table id="login_form" class="form">',
-			'<tr><td>',
-			theme.label{title = 'Username'},
-			'</td><td>',
-			theme.textfield{attributes = {id = 'login_user'}, value = ''},
-			'</td></tr>',
-			'<tr><td>',
-			theme.label{title = 'Password'},
-			'</td><td>',
-			'<input id="login_pass" type="password" name="pass">',
-			'</td></tr>',
-			'<tr><td colspan="2" align="right">',
-			theme.submit{attributes = {id = 'login_submit'}, value = 'Login'},
-			'</td></tr>',
-		'</table>',
-		'</form>',
-	}
+    '<form method="POST">',
+    '<table id="login_form" class="form">',
+      '<tr><td>',
+      theme.label{title = 'Username'},
+      '</td><td>',
+      theme.textfield{attributes = {id = 'login_user'}, value = ''},
+      '</td></tr>',
+      '<tr><td>',
+      theme.label{title = 'Password'},
+      '</td><td>',
+      '<input id="login_pass" type="password" name="pass">',
+      '</td></tr>',
+      '<tr><td colspan="2" align="right">',
+      theme.submit{attributes = {id = 'login_submit'}, value = 'Login'},
+      '</td></tr>',
+    '</table>',
+    '</form>',
+  }
 end
 
 function logout_page()
@@ -117,40 +117,40 @@ function create_user()
 end
 
 function auth_service()
-	local input, parsed, pos, err, account
-	local output = {authenticated = false}
+  local input, parsed, pos, err, account
+  local output = {authenticated = false}
 
-	header('content-type', 'application/json; charset=utf-8')
+  header('content-type', 'application/json; charset=utf-8')
 
-	input = read '*a'
-	parsed, pos, err = json.decode(input, 1, nil)
-	if err then
-		error(err)
-	elseif
-	  'table' == type(_SESSION.user) and 'table' == type(_SESSION.user.token)
+  input = read '*a'
+  parsed, pos, err = json.decode(input, 1, nil)
+  if err then
+    error(err)
+  elseif
+    'table' == type(_SESSION.user) and 'table' == type(_SESSION.user.token)
     and 'table' == type(parsed) and not empty(parsed.user) and
     not empty(parsed.hash) and time() + 3 >= _SESSION.user.token.ts
-	then
-	  account = user_load{name = parsed.user}
-	  if 'table' == type(account) and not empty(account.id) then
-			if parsed.hash == crypto.hmac.digest('sha256', account.pass, _SESSION.user.token.id) then
-				output.authenticated = true
-				_SESSION.user = account
-			end
-	  end
-	end
+  then
+    account = user_load{name = parsed.user}
+    if 'table' == type(account) and not empty(account.id) then
+      if parsed.hash == crypto.hmac.digest('sha256', account.pass, _SESSION.user.token.id) then
+        output.authenticated = true
+        _SESSION.user = account
+      end
+    end
+  end
 
-	output = json.encode(output)
+  output = json.encode(output)
 
-	theme.html = function () return output or '' end
+  theme.html = function () return output or '' end
 end
 
 function token_service()
-	header('content-type', 'application/json; charset=utf-8')
+  header('content-type', 'application/json; charset=utf-8')
 
-	if type(_SESSION.user) == 'table' then
-		_SESSION.user.token = {id = uuid.new(), ts = time()}
-	end
+  if type(_SESSION.user) == 'table' then
+    _SESSION.user.token = {id = uuid.new(), ts = time()}
+  end
 
-	theme.html = function () return json.encode(_SESSION.user.token.id) or '' end
+  theme.html = function () return json.encode(_SESSION.user.token.id) or '' end
 end
