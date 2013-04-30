@@ -48,13 +48,13 @@ function init()
   db_query = env.db_query
 end
 
-function user_is_logged_in()
+function is_logged_in()
   if not empty(_SESSION.user.id) then
     return not empty(_SESSION.user.id)
   end
 end
 
-function user_load(account)
+function load(account)
   local rs
 
   if 'table' == type(account) then
@@ -68,7 +68,7 @@ function user_load(account)
   end
 end
 
-function user_access(perm)
+function access(perm)
   local account = _SESSION.user
 
   if not empty(account) and not empty(account.id) then
@@ -106,13 +106,13 @@ function login_page()
 end
 
 function logout_page()
-  if user_is_logged_in then
+  if is_logged_in then
     session_destroy()
     goto ''
   end
 end
 
-function create_user()
+function create()
   -- INSERT INTO user(name, mail, pass, active, created) values('User', 'user@example.com', 'password', 1, strftime('%s', 'now'));
 end
 
@@ -131,7 +131,7 @@ function auth_service()
     and 'table' == type(parsed) and not empty(parsed.user) and
     not empty(parsed.hash) and time() + 3 >= _SESSION.user.token.ts
   then
-    account = user_load{name = parsed.user}
+    account = load{name = parsed.user}
     if 'table' == type(account) and not empty(account.id) then
       if parsed.hash == crypto.hmac.digest('sha256', account.pass, _SESSION.user.token.id) then
         output.authenticated = true
