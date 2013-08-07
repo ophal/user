@@ -49,7 +49,7 @@ function init()
 end
 
 function is_logged_in()
-  if not empty(_SESSION.user.id) then
+  if not empty(_SESSION.user) and not empty(_SESSION.user.id) then
     return not empty(_SESSION.user.id)
   end
 end
@@ -71,7 +71,7 @@ end
 function access(perm)
   local account = _SESSION.user
 
-  if not empty(account) and not empty(account.id) then
+  if not empty(account) then
     if tonumber(account.id) == 1 then
       return true
     end
