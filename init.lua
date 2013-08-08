@@ -91,7 +91,7 @@ function load_permissions(account)
   account.permissions = {}
   for role, assigned in pairs(account.roles) do
     if assigned then
-      for _, permission in pairs(roles[role]) do
+      for _, permission in pairs(roles[role] or {}) do
         permissions[permission] = true
       end
     end
