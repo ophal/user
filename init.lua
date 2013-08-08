@@ -1,9 +1,11 @@
 local json, crypto, tonumber = require 'dkjson', require 'crypto', tonumber
-local print, exit, _SESSION = print, exit, _SESSION
+local print, exit, _SESSION, config = print, exit, _SESSION, settings.user
 local debug, error, empty, header = debug, error, seawolf.variable.empty, header
 local theme, tconcat, add_js, read = theme, table.concat, add_js, io.read
-local type, env, uuid, time, goto = type, env, uuid, os.time, goto
-local session_destroy = session_destroy
+local type, env, uuid, time, goto, pairs = type, env, uuid, os.time, goto, pairs
+local session_destroy, module_invoke_all = session_destroy, module_invoke_all
+
+debug = debug
 
 module 'ophal.modules.user'
 
@@ -31,21 +33,16 @@ function menu()
   return items
 end
 
-function boot()
-  -- Load user
-  if _SESSION.user == nil then
-  _SESSION.user = {
-    id = 0,
-    name = 'Anonymous',
-  }
-  end
-end
-
 --[[
   Implements hook_init().
 ]]
 function init()
   db_query = env.db_query
+
+  -- Load user
+  if _SESSION.user == nil then
+    _SESSION.user = load{id = 0}
+  end
 end
 
 function is_logged_in()
@@ -58,14 +55,49 @@ function load(account)
   local rs
 
   if 'table' == type(account) then
-    if not empty(account.id) then
+    if account.id == 0 then
+      account = {
+        id = 0,
+        name = 'Anonymous',
+      }
+    elseif not empty(account.id) then
       rs = db_query('SELECT * FROM user WHERE id = ?', account.id)
-      return rs:fetch(true)
+      account = rs:fetch(true)
     elseif not empty(account.name) then
       rs = db_query('SELECT * FROM user WHERE name = ?', account.name)
-      return rs:fetch(true)
+      account = rs:fetch(true)
     end
   end
+
+  if not empty(account) then
+    module_invoke_all('user_load', account)
+    load_permissions(account)
+  end
+
+  return account
+end
+
+function load_permissions(account)
+  if empty(config) then config = {} end
+  if empty(config.role) then config.role = {} end
+  if empty(config.user_role) then config.user_role = {} end
+
+  local permissions = {}
+  local user_roles = config.user_role
+  local roles = config.role
+
+  if empty(user_roles[0]) then user_roles[0] = {anonymous = true} end
+  account.roles = user_roles[tonumber(account.id)] or {}
+  account.permissions = {}
+  for role, assigned in pairs(account.roles) do
+    if assigned then
+      for _, permission in pairs(roles[role]) do
+        permissions[permission] = true
+      end
+    end
+  end
+
+  account.permissions = permissions
 end
 
 function access(perm)
@@ -74,6 +106,8 @@ function access(perm)
   if not empty(account) then
     if tonumber(account.id) == 1 then
       return true
+    elseif not empty(account.permissions) then
+      return account.permissions[perm]
     end
   end
   return false
