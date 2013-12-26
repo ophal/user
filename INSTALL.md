@@ -1,6 +1,8 @@
 Installation instructions
 =========================
 
+NOTE: Following SQL commands are compatible with SQLite3, you'll need to adapt them for another database engine.
+
 1. Create schema:
 
 CREATE TABLE user(id INTEGER PRIMARY KEY AUTOINCREMENT, name VARCHAR(255), mail VARCHAR(255), pass VARCHAR(255), active BOOLEAN, created UNSIGNED BIG INT);
@@ -30,7 +32,7 @@ NOTICE: this script outputs a password hash, change 'mypassword' by 'yourpass'
 
 3. Create user 1:
 
-INSERT INTO "user" VALUES(1,'root','test@example.com',[password],1,[unix timestamp]);
+INSERT INTO "user" VALUES(1,'root','test@example.com',[password],1,CURRENT_TIMESTAMP);
 
 4. Add math libraries to global env in settings.lua:
 
