@@ -114,9 +114,10 @@ function access(perm)
 end
 
 function login_page()
-  add_js 'misc/jquery.js'
-  add_js 'misc/jssha256.js'
-  add_js 'misc/json2.js'
+  add_js 'libraries/jquery.min.js'
+  add_js 'libraries/jquery.js'
+  add_js 'libraries/jssha256.js'
+  add_js 'libraries/json2.js'
   add_js 'modules/user/user_login.js'
   return tconcat{
     '<form method="POST">',
