@@ -46,3 +46,19 @@ NOTICE: this script outputs a password hash, change 'mypassword' by 'yourpass'
 6. Enable this module:
 
     settings.modules.user = true
+
+7. Configure default roles
+
+    --[=[
+      User module options
+    ]=]
+    settings.user = {
+      role = {
+        anonymous = {
+          'access content',
+        },
+        authenticated = {
+          'access content',
+        },
+      }
+    }
