@@ -1,9 +1,10 @@
 local json, crypto, tonumber = require 'dkjson', require 'crypto', tonumber
-local print, exit, _SESSION, config = print, exit, _SESSION, settings.user
+local print, exit, _SESSION, config = print, exit, env._SESSION, settings.user
 local debug, error, empty, header = debug, error, seawolf.variable.empty, header
 local theme, tconcat, add_js, read = theme, table.concat, add_js, io.read
 local type, env, uuid, time, goto, pairs = type, env, uuid, os.time, goto, pairs
 local session_destroy, module_invoke_all = session_destroy, module_invoke_all
+local request_get_body = request_get_body
 
 debug = debug
 
@@ -40,7 +41,7 @@ function init()
   db_query = env.db_query
 
   -- Load user
-  if _SESSION.user == nil then
+  if _SESSION and _SESSION.user == nil then
     _SESSION.user = load{id = 0}
   end
 end
@@ -59,6 +60,7 @@ function load(account)
       account = {
         id = 0,
         name = 'Anonymous',
+        role = 'anonymous',
       }
     elseif not empty(account.id) then
       rs = db_query('SELECT * FROM user WHERE id = ?', account.id)
@@ -101,9 +103,10 @@ function load_permissions(account)
 end
 
 function access(perm)
-  local account = _SESSION.user
+  local account
 
-  if not empty(account) then
+  if _SESSION and not empty(_SESSION.user) then
+    account = _SESSION.user
     if tonumber(account.id) == 1 then
       return true
     elseif not empty(account.permissions) then
@@ -117,7 +120,6 @@ function login_page()
   add_js 'libraries/jquery.min.js'
   add_js 'libraries/jquery.js'
   add_js 'libraries/jssha256.js'
-  add_js 'libraries/json2.js'
   add_js 'modules/user/user_login.js'
   return tconcat{
     '<form method="POST">',
@@ -157,13 +159,14 @@ function auth_service()
 
   header('content-type', 'application/json; charset=utf-8')
 
-  input = read '*a'
+  input = request_get_body()
   parsed, pos, err = json.decode(input, 1, nil)
+
   if err then
     error(err)
   elseif
-    'table' == type(_SESSION.user) and 'table' == type(_SESSION.user.token)
-    and 'table' == type(parsed) and not empty(parsed.user) and
+    'table' == type(_SESSION.user) and 'table' == type(_SESSION.user.token) and
+    'table' == type(parsed) and not empty(parsed.user) and
     not empty(parsed.hash) and time() + 3 >= _SESSION.user.token.ts
   then
     account = load{name = parsed.user}
@@ -181,9 +184,11 @@ function auth_service()
 end
 
 function token_service()
+  local output
+
   header('content-type', 'application/json; charset=utf-8')
 
-  if type(_SESSION.user) == 'table' then
+  if _SESSION and  'table' == type(_SESSION.user) then
     _SESSION.user.token = {id = uuid.new(), ts = time()}
   end
 

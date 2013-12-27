@@ -6,8 +6,9 @@ function login_request() {
   var hash;
   /* Fetch auth token */
   $.ajax({
+    type: 'GET',
     url: '/user/token',
-    dataType: 'json',
+    processData: false,
     success: function (token) {
       if (token) {
         hash = HMAC_SHA256_MAC(token, SHA256_hash($('#login_form #login_pass').val()));
@@ -37,14 +38,14 @@ function login_request() {
 }
 
 $(document).ready(function() {
-	$('#login_submit').click(function() {
+  $('#login_submit').click(function() {
     try {
       login_request();
     } finally {
       /* Prevent browser to send POST request, since we already did it */
        return false;
     }
-	});
+  });
 });
 
 })(jQuery);
