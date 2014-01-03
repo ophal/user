@@ -1,7 +1,7 @@
 local json, crypto, tonumber = require 'dkjson', require 'crypto', tonumber
 local print, exit, _SESSION, config = print, exit, env._SESSION, settings.user
 local debug, error, empty, header = debug, error, seawolf.variable.empty, header
-local theme, tconcat, add_js, read = theme, table.concat, add_js, io.read
+local theme, tconcat, add_js = theme, table.concat, add_js
 local type, env, uuid, time, goto, pairs = type, env, uuid, os.time, goto, pairs
 local session_destroy, module_invoke_all = session_destroy, module_invoke_all
 local request_get_body = request_get_body
