@@ -26,10 +26,12 @@ function menu()
   items['user/auth'] = {
     title = 'User authentication web service',
     page_callback = 'auth_service',
+    format = 'json',
   }
   items['user/token'] = {
     title = 'User token web service',
     page_callback = 'token_service',
+    format = 'json',
   }
   return items
 end
@@ -157,8 +159,6 @@ function auth_service()
   local input, parsed, pos, err, account
   local output = {authenticated = false}
 
-  header('content-type', 'application/json; charset=utf-8')
-
   input = request_get_body()
   parsed, pos, err = json.decode(input, 1, nil)
 
@@ -178,19 +178,15 @@ function auth_service()
     end
   end
 
-  output = json.encode(output)
-
-  theme.html = function () return output or '' end
+  return output
 end
 
 function token_service()
   local output
 
-  header('content-type', 'application/json; charset=utf-8')
-
   if _SESSION and  'table' == type(_SESSION.user) then
     _SESSION.user.token = {id = uuid.new(), ts = time()}
   end
 
-  theme.html = function () return json.encode(_SESSION.user.token.id) or '' end
+  return _SESSION.user.token.id
 end
